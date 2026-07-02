@@ -12,6 +12,9 @@ from cavallini.subtraction import non_spectral_subtract, spectral_subtract
 from cavallini.undertone import detect_undertone, simplify_undertone
 
 
+NEUTRAL_CHROMA_THRESHOLD = 5
+
+
 def analyze(
     c: float,
     m: float,
@@ -36,21 +39,29 @@ def analyze(
     else:
         raise ValueError(f"Neznámý režim: {mode}")
 
-    undertone = detect_undertone(remainders.c, remainders.m, remainders.y)
-    simplified_undertone = simplify_undertone(undertone)
-
     brightness = classify_brightness(lab_l) if lab_l is not None else None
     saturation = classify_saturation(lch_c) if lch_c is not None else None
 
-    if brightness is not None and saturation is not None and undertone is not None:
-        decision = decide_season(undertone, brightness, saturation)
-        season = decision["season"]
-        decision_reason = decision["reason"]
-    else:
-        season = get_season_from_undertone(undertone)
+    if lch_c is not None and lch_c < NEUTRAL_CHROMA_THRESHOLD:
+        undertone = "neutrální"
+        simplified_undertone = "neutrální"
+        season = "NEURČENO"
         decision_reason = (
-            "Sezóna je určena pouze podle podtónu, protože chybí Lab L nebo LCH C."
+            "Barva má velmi nízkou chromatičnost, proto je vyhodnocena jako neutrální."
         )
+    else:
+        undertone = detect_undertone(remainders.c, remainders.m, remainders.y)
+        simplified_undertone = simplify_undertone(undertone)
+
+        if brightness is not None and saturation is not None and undertone is not None:
+            decision = decide_season(undertone, brightness, saturation)
+            season = decision["season"]
+            decision_reason = decision["reason"]
+        else:
+            season = get_season_from_undertone(undertone)
+            decision_reason = (
+                "Sezóna je určena pouze podle podtónu, protože chybí Lab L nebo LCH C."
+            )
 
     return AnalysisResult(
         c=c,

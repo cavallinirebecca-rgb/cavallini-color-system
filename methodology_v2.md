@@ -96,6 +96,25 @@ Pokud lze barvu přiřadit ke dvěma sezónám stejným počtem shodných vlastn
 
 Podtón má vždy nejvyšší prioritu.
 
+Rozhodovací strom: 
+1. Je barva skoro neutrální?
+   pokud LCH C < 5 → neutrální / neurčeno
+
+2. Pokud není neutrální:
+   spočítat zbytek CMY
+
+3. Podtón určit ze zbytku:
+   jedna složka → základní podtón
+   dvě složky → podle poměru:
+      podobné = oranžová / zelená / fialová
+      jedna výraznější = žluto-oranžová atd.
+
+4. Sezónu určit z:
+   podtón + jas + saturace
+
+5. Musí sedět 2 ze 3 vlastností.
+   při remíze rozhoduje podtón.
+
 # Budoucí rozšíření
 
 V dalších verzích systému bude doplněno:
